@@ -1,4 +1,6 @@
 package com.Auth.Autenticacion.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.Auth.Autenticacion.Entity.Usuario;
 import com.Auth.Autenticacion.Enum.Rol;
 import com.Auth.Autenticacion.Repository.UsuarioRepository;
@@ -9,11 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.Auth.Autenticacion.Entity.Password;
 
+
 @Service
 public class AuthenticationService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public AuthenticationService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.usuarioRepository = usuarioRepository;
@@ -53,5 +57,6 @@ public class AuthenticationService {
         usuario.setPassword(passwordEntity);
 
         usuarioRepository.save(usuario);
+        logger.info("Usuario registrado: " + username+ "  pwd: "+password);
     }
 }
