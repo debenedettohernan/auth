@@ -9,10 +9,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RegisterRequest {
-    @NotNull
-    @NotEmpty
+    @NotNull(message = "El nombre de usuario no puede ser nulo")
+    @NotEmpty(message = "El nombre de usuario no puede estar vacío")
     private String username;
+    @NotNull(message = "La contraseña no puede ser nula")
+    @NotEmpty(message = "La contraseña no puede estar vacía")
     private String password;
+    @NotNull(message = "El email no puede ser nulo")
+    @NotEmpty(message = "El email no puede estar vacío")
     private String email;
     private Rol rol;
 }

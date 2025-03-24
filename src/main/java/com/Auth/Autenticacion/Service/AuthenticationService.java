@@ -45,6 +45,9 @@ public class AuthenticationService {
         if (usuarioRepository.existsByUsername(username)) {
             throw new GlobalException("Usuario ya registrado");
         }
+        if (usuarioRepository.findByEmail(email).isPresent()) {
+            throw new GlobalException("Email ya registrado");
+        }
 
         Usuario usuario = new Usuario();
         usuario.setUsername(username);
