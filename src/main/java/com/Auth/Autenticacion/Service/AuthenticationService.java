@@ -41,26 +41,5 @@ public class AuthenticationService {
         return jwtUtil.generateToken(username);
     }
 
-    public void registrarUsuario(String username, String password, String email, Rol rol) {
-        if (usuarioRepository.existsByUsername(username)) {
-            throw new GlobalException("Usuario ya registrado");
-        }
-        if (usuarioRepository.findByEmail(email).isPresent()) {
-            throw new GlobalException("Email ya registrado");
-        }
 
-        Usuario usuario = new Usuario();
-        usuario.setUsername(username);
-        usuario.setEmail(email);
-        usuario.setRol(rol);
-        usuario.setActivo(true);
-
-        Password passwordEntity = new Password();
-        passwordEntity.setHash(passwordEncoder.encode(password));
-        passwordEntity.setUsuario(usuario);
-        usuario.setPassword(passwordEntity);
-
-        usuarioRepository.save(usuario);
-        logger.info("Usuario registrado: " + username+ "  pwd: "+password);
-    }
 }

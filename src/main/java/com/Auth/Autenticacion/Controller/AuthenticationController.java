@@ -4,6 +4,8 @@ import com.Auth.Autenticacion.Request.LoginRequest;
 import com.Auth.Autenticacion.Request.RegisterRequest;
 import com.Auth.Autenticacion.Response.AuthResponse;
 import com.Auth.Autenticacion.Service.AuthenticationService;
+import com.Auth.Autenticacion.Service.RegisterService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+    private final RegisterService registerService;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(AuthenticationService authenticationService, RegisterService registerService) {
         this.authenticationService = authenticationService;
+        this.registerService = registerService;
     }
 
     @PostMapping("/login")
@@ -23,8 +27,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        authenticationService.registrarUsuario(request.getUsername(), request.getPassword(), request.getEmail(), request.getRol());
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request )  {
+        registerService.registrarUsuario(request.getUsername(), request.getPassword(), request.getEmail(), request.getRol()) ;
         return ResponseEntity.ok("Usuario registrado exitosamente");
     }
     @GetMapping("/hello")
