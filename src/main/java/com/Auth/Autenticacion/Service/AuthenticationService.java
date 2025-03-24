@@ -1,4 +1,5 @@
 package com.Auth.Autenticacion.Service;
+import com.Auth.Autenticacion.Exception.GlobalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.Auth.Autenticacion.Entity.Usuario;
@@ -30,7 +31,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
         if (!usuario.isActivo()) {
-            throw new RuntimeException("Cuenta inactiva");
+            throw new GlobalException("Cuenta inactiva");
         }
 
         if (!passwordEncoder.matches(password, usuario.getPassword().getHash())) {
@@ -42,7 +43,7 @@ public class AuthenticationService {
 
     public void registrarUsuario(String username, String password, String email, Rol rol) {
         if (usuarioRepository.existsByUsername(username)) {
-            throw new RuntimeException("Usuario ya registrado");
+            throw new GlobalException("Usuario ya registrado");
         }
 
         Usuario usuario = new Usuario();
