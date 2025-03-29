@@ -1,5 +1,6 @@
 package com.Auth.Autenticacion.Controller;
 
+import com.Auth.Autenticacion.Repository.UsuarioRepository;
 import com.Auth.Autenticacion.Request.EmailRequest;
 import com.Auth.Autenticacion.Request.LoginRequest;
 import com.Auth.Autenticacion.Request.RegisterRequest;
@@ -19,7 +20,8 @@ public class AuthenticationController {
     private final RegisterService registerService;
     private final PasswordResetService passwordResetService;
 
-    public AuthenticationController(AuthenticationService authenticationService, RegisterService registerService, PasswordResetService passwordResetService) {
+
+    public AuthenticationController(AuthenticationService authenticationService, RegisterService registerService, PasswordResetService passwordResetService, UsuarioRepository usuarioRepository) {
         this.authenticationService = authenticationService;
         this.registerService = registerService;
         this.passwordResetService = passwordResetService;
@@ -28,7 +30,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         String token = authenticationService.authenticate(request.getUsername(), request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new     AuthResponse(token));
     }
 
     @PostMapping("/register")
@@ -51,5 +53,9 @@ public class AuthenticationController {
     public ResponseEntity<?> cambiarPassword(@RequestBody ResetPasswordRequest request) {
         passwordResetService.cambiarPassword(request.getToken(), request.getNuevaPassword());
         return ResponseEntity.ok("Contraseña cambiada correctamente.");
+    }
+    @GetMapping("/unlock")
+    public String desbloquearCuenta(@RequestParam String email) {
+        return authenticationService.desbloquearCuenta(email);
     }
 }

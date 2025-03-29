@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -32,4 +34,7 @@ public class Usuario {
     private Password password;
 
     private boolean activo;
+    private int intentosFallidos = 0;
+    private boolean bloqueado = false;
+    private LocalDateTime desbloqueoHora;
 }
