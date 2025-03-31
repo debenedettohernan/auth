@@ -22,15 +22,17 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final MfaService mfaService;
 
-    public AuthenticationService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService) {
+    public AuthenticationService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, EmailService emailService, MfaService mfaService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.emailService = emailService;
+        this.mfaService = mfaService;
     }
 
-    public String authenticate(String username, String password) {
+    public String authenticate(String username, String password,int mfaCode) {
         Usuario usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
@@ -51,6 +53,10 @@ public class AuthenticationService {
 
         usuario.setIntentosFallidos(0); // Reiniciar intentos en caso de éxito
         usuarioRepository.save(usuario);
+
+        if (usuario.isMfaHabilitado() && !mfaService.verificarCodigo(usuario.getMfaSecret(), mfaCode)) {
+            throw new RuntimeException("Código MFA incorrecto");
+        }
 
         return jwtUtil.generateToken(username);
     }

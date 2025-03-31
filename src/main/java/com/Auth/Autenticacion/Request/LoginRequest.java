@@ -14,5 +14,8 @@ public class LoginRequest {
     @NotNull(message = "La contraseña no puede ser nula")
     @NotEmpty(message = "La contraseña no puede estar vacía")
     private String password;
+    @NotNull(message = "Es necesario el codigo para el logeo")
+    @NotEmpty(message = "Es necesario el codigo para el logeo")
+    private int mfaCode;
 
 }

@@ -16,10 +16,12 @@ public class RegisterService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(RegisterService.class);
+    private final MfaService mfaService;
 
-    public RegisterService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public RegisterService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, MfaService mfaService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mfaService = mfaService;
     }
 
     public void registrarUsuario(String username, String password, String email, Rol rol) {
@@ -35,6 +37,7 @@ public class RegisterService {
         usuario.setEmail(email);
         usuario.setRol(rol);
         usuario.setActivo(true);
+        usuario.setMfaSecret(mfaService.generarCodigoSecreto());
 
         Password passwordEntity = new Password();
         passwordEntity.setHash(passwordEncoder.encode(password));
@@ -43,5 +46,7 @@ public class RegisterService {
 
         usuarioRepository.save(usuario);
         logger.info("Usuario registrado: " + username+ "  pwd: "+password);
+
+        mfaService.generarQrParaUsuario(username, usuario.getMfaSecret());
     }
 }

@@ -37,4 +37,6 @@ public class Usuario {
     private int intentosFallidos = 0;
     private boolean bloqueado = false;
     private LocalDateTime desbloqueoHora;
+    private String mfaSecret;
+    private boolean mfaHabilitado = false;
 }
