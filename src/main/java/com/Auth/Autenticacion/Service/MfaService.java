@@ -14,12 +14,13 @@ public class MfaService {
         return key.getKey();
     }
 
-    public String generarQrParaUsuario(String username, GoogleAuthenticatorKey key) {
-        return GoogleAuthenticatorQRGenerator.getOtpAuthURL("MiAplicacion", username, key);
+    public String generarQrParaUsuario(String username, String secret) {
+        return GoogleAuthenticatorQRGenerator.getOtpAuthURL("MiAplicacion", username, new GoogleAuthenticatorKey.Builder(secret).build());
     }
-
     public boolean verificarCodigo(String secret, int codigo) {
         return gAuth.authorize(secret, codigo);
     }
+
+
 }
 

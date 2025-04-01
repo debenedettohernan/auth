@@ -47,6 +47,7 @@ public class RegisterService {
         usuarioRepository.save(usuario);
         logger.info("Usuario registrado: " + username+ "  pwd: "+password);
 
-        mfaService.generarQrParaUsuario(username, usuario.getMfaSecret());
+        String qrCode = mfaService.generarQrParaUsuario(username, usuario.getMfaSecret());
+        logger.info("QR Code para MFA: " + qrCode);
     }
 }

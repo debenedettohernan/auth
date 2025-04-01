@@ -13,6 +13,7 @@ import com.Auth.Autenticacion.Service.PasswordResetService;
 import com.Auth.Autenticacion.Service.RegisterService;
 import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,12 @@ public class AuthenticationController {
     private final UsuarioRepository usuarioRepository;
 
 
-    public AuthenticationController(AuthenticationService authenticationService, RegisterService registerService, PasswordResetService passwordResetService, UsuarioRepository usuarioRepository, MfaService mfaService, UsuarioRepository usuarioRepository1) {
+    public AuthenticationController(AuthenticationService authenticationService, RegisterService registerService, PasswordResetService passwordResetService, UsuarioRepository usuarioRepository, MfaService mfaService) {
         this.authenticationService = authenticationService;
         this.registerService = registerService;
         this.passwordResetService = passwordResetService;
         this.mfaService = mfaService;
-        this.usuarioRepository = usuarioRepository1;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping("/login")
@@ -77,4 +78,18 @@ public class AuthenticationController {
 
         return "Escanea este código QR en Google Authenticator: " + mfaService.generarQrParaUsuario(usuario.getUsername(), key);
     }
+
+    @PostMapping("/verify-mfa")
+    public ResponseEntity<?> verifyMfa(@RequestParam String username, @RequestParam int codigo) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        boolean isCodeValid = mfaService.verificarCodigo(usuario.getMfaSecret(), codigo);
+        if (isCodeValid) {
+            return ResponseEntity.ok("Código MFA verificado correctamente.");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Código MFA inválido.");
+        }
+    }
+
 }
