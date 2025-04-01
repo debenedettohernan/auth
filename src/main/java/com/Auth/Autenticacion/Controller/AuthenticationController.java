@@ -38,6 +38,12 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         String token = authenticationService.authenticate(request.getUsername(), request.getPassword(), request.getMfaCode());
+        Usuario usuario = usuarioRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        boolean isValid = mfaService.isValid(usuario.getMfaSecret(), request.getMfaCode());
+        if (!isValid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Código TOTP inválido.");
+        }
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
@@ -68,7 +74,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/enable-mfa")
-    public String activarMfa(@RequestParam String username) {
+    public ResponseEntity<?> activarMfa(@RequestParam String username) {
         Usuario usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -76,7 +82,8 @@ public class AuthenticationController {
         usuario.setMfaSecret(key);
         usuarioRepository.save(usuario);
 
-        return "Escanea este código QR en Google Authenticator: " + mfaService.generarQrParaUsuario(usuario.getUsername(), key);
+        String qrCodeUrl = mfaService.generarQrParaUsuario(usuario.getUsername(), key);
+        return ResponseEntity.ok("Escanea este código QR en Google Authenticator: " + qrCodeUrl);
     }
 
     @PostMapping("/verify-mfa")

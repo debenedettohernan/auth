@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class RegisterService {
 
@@ -31,13 +34,19 @@ public class RegisterService {
         if (usuarioRepository.findByEmail(email).isPresent()) {
             throw new GlobalException("Email ya registrado");
         }
+        String secret = mfaService.generarCodigoSecreto();
+        String qrCodeUrl = mfaService.generarQrParaUsuario(secret, username);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("secret", secret);
+        response.put("qrCodeUrl", qrCodeUrl);
 
         Usuario usuario = new Usuario();
         usuario.setUsername(username);
         usuario.setEmail(email);
         usuario.setRol(rol);
         usuario.setActivo(true);
-        usuario.setMfaSecret(mfaService.generarCodigoSecreto());
+        usuario.setMfaSecret(secret);
 
         Password passwordEntity = new Password();
         passwordEntity.setHash(passwordEncoder.encode(password));
@@ -46,8 +55,7 @@ public class RegisterService {
 
         usuarioRepository.save(usuario);
         logger.info("Usuario registrado: " + username+ "  pwd: "+password);
-
-        String qrCode = mfaService.generarQrParaUsuario(username, usuario.getMfaSecret());
-        logger.info("QR Code para MFA: " + qrCode);
+        
+        logger.info("QR Code para MFA: " + qrCodeUrl);
     }
 }
